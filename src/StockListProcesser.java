@@ -1,70 +1,68 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class StockListProcesser {
-	private static String Link_StockTable = "http://www.emega.com.tw/js/StockTable.xls";
-	private static String Link_T50_100 = "http://www.emega.com.tw/js/T50_100.xls";
-	private static String File_StockTable = "StockTable.html";
-	private static String File_T50_100 = "T50_100.html";
-	private static String YahooAPI = "http://ichart.finance.yahoo.com/table.csv?s=";
-	
-	private String XlsPath = "D:/Stock/";
+	private String File_StockTable = "StockTable.html";
+	private String File_T50_100 = "T50_100.html";
+	private String Link_StockTable;
+	private String Link_T50_100;
+	private String DataPath;
 	private List<Stock> stockList;
 	
 	public StockListProcesser() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd");
 		String date = sdf.format(new Date());
-		this.XlsPath += date + "/";
-		this.stockList = new ArrayList<Stock>();
-	}
-	
-	public void processFlow() {
-		downloadLists();
-		parsingStockList(new File(XlsPath + File_StockTable));
-	}
-	
-	/* [+] Download file */
-	public void downloadLists() {
+		Properties prop = new Properties();
+		String propFileName = "config.properties";
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream("resources/" + propFileName);
+		
 		try {
-			URL url = new URL(Link_StockTable);
-			downloadFile(url, XlsPath, File_StockTable);
+			prop.load(inputStream);
 			
-			url = new URL(Link_T50_100);			
-			downloadFile(url, XlsPath, File_T50_100);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void downloadFile(URL url, String path, String fileName) {
-		try {
-			File dir = new File(path);
-			FileUtils.forceMkdir(dir);
-			File download = new File(path + fileName);
-			FileUtils.copyURLToFile(url, download);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			DataPath = prop.getProperty("DataPath");
+			Link_StockTable = prop.getProperty("Link_StockTable");
+			Link_T50_100 = prop.getProperty("Link_T50_100");
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		this.DataPath += date + "/";
+		this.stockList = new ArrayList<Stock>();
 	}
-	/* [-] Download file */
 	
-	public void parsingStockList(File parsingFile) {
+	public void process() {
+		downloadLists();
+		parsingStockList(new File(DataPath + File_StockTable));
+	}
+	
+	private void downloadLists() {
+		try {
+			URL url = new URL(Link_StockTable);
+			Utility.downloadFile(url, DataPath, File_StockTable);
+			
+			url = new URL(Link_T50_100);			
+			Utility.downloadFile(url, DataPath, File_T50_100);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void parsingStockList(File parsingFile) {
 		try {
 			Document doc = Jsoup.parse(parsingFile, "big5");
 			Elements trElms = doc.getElementsByTag("tr");
@@ -135,9 +133,5 @@ public class StockListProcesser {
 			System.out.println("Name: " + stock.getName() + "\tNumber: " + stock.getNumber() + 
 					"\tMarket: " + stock.getMarketType() + "\tCategory: " + stock.getCategory() + "\tIndex: " + stock.getT50_100());
 		}
-	}
-	
-	public void getData(Stock stock) {
-		Document doc = Jsoup.parse(YahooAPI);
 	}
 }
