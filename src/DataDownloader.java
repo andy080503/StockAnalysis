@@ -45,6 +45,8 @@ public class DataDownloader {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("Finish downloadCloseData()");
 	}
 	
 	private void parsingCloseData(File parsingFile) {
@@ -94,6 +96,8 @@ public class DataDownloader {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("Finish downloadNetBuySellData()");
 	}
 	
 	private void parsingNetBuySellData(File parsingFile) {

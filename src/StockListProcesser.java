@@ -48,6 +48,16 @@ public class StockListProcesser {
 	public void process() {
 		downloadLists();
 		parsingStockList(new File(DataPath + File_StockTable));
+		
+		//測看看是否正常 
+	    jdbcMysql test = new jdbcMysql(); 
+	    test.dropTable(); 
+	    test.createTable(); 
+	    test.insertTable("yku", "12356"); 
+	    test.insertTable("yku2", "7890"); 
+	    test.SelectTable(); 
+		
+		printAllStock();
 	}
 	
 	private void downloadLists() {
@@ -60,6 +70,8 @@ public class StockListProcesser {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("Finish downloadLists()");
 	}
 	
 	private void parsingStockList(File parsingFile) {
@@ -124,7 +136,8 @@ public class StockListProcesser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
+		System.out.println("Finish parsingStockList()");
 	}
 	
 	public void printAllStock() {
