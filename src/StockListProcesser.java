@@ -49,15 +49,7 @@ public class StockListProcesser {
 		downloadLists();
 		parsingStockList(new File(DataPath + File_StockTable));
 		
-		//測看看是否正常 
-	    jdbcMysql test = new jdbcMysql(); 
-	    test.dropTable(); 
-	    test.createTable(); 
-	    test.insertTable("yku", "12356"); 
-	    test.insertTable("yku2", "7890"); 
-	    test.SelectTable(); 
-		
-		printAllStock();
+	    //addAllToDB();
 	}
 	
 	private void downloadLists() {
@@ -140,11 +132,22 @@ public class StockListProcesser {
 		System.out.println("Finish parsingStockList()");
 	}
 	
-	public void printAllStock() {
+	public void addAllToDB() {
+		jdbcMysql mysql = new jdbcMysql();
+		
 		for(int i = 0; i < stockList.size(); i++) {
 			Stock stock = stockList.get(i);
-			System.out.println("Name: " + stock.getName() + "\tNumber: " + stock.getNumber() + 
-					"\tMarket: " + stock.getMarketType() + "\tCategory: " + stock.getCategory() + "\tIndex: " + stock.getT50_100());
+			
+			mysql.insertStock(stock);
 		}
+		
+		//mysql.selectAllStock();
+		mysql.CloseConnnection();
+		
+		System.out.println("Finish addAllToDB()");
+	}
+	
+	public List<Stock> getStockList() {
+		return this.stockList;
 	}
 }

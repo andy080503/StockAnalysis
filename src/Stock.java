@@ -49,5 +49,4 @@ public class Stock {
 	public Index getT50_100() {
 		return T50_100;
 	}
-
 }
