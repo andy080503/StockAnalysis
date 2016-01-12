@@ -3,9 +3,9 @@ import java.sql.Date;
 public class StockDailyData {
 	private String stock_number;
 	private Date date;
-	private Long totalVolume;
-	private Integer totalTransactions;
-	private Long totalTurnOver;
+	private Long totalVolume; // 成交股數
+	private Integer totalTransactions; // 成交筆數
+	private Long totalTurnOver; // 成交金額
 	private Double open;
 	private Double high;
 	private Double low;

@@ -15,17 +15,22 @@ public class jdbcMysql {
 	private String select_all_from_stock = "select * from stock";
 	private String select_from_stock = "SELECT * FROM stock where Number = ";
 	
-	private String insert_into_dailydata = "Insert into stockdata.dailydata(Stock_Number, Date," +
+	private String insert_close_into_dailydata = "Insert into stockdata.dailydata(Stock_Number, Date," +
 			" TotalVolume, TotalTransactions, TotalTurnOver, Open, High, Low, Close, `Change`," +
 			" FinalBuyPrc, FinalBuyAmt, FinalSellPrc, FinalSellAmt, PERatio) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; // Change ¬°«O¯d¦r¤¸
 	private String select_from_dailydata = "SELECT * FROM stockdata.dailydata where (Stock_Number, Date) = ";
+	
+	private String insert_amount_into_dailydata = "Insert into stockdata.dailydata(Stock_Number, Date, FIBuy, FISell, ITBuy, ITSell," +
+			"DealerSelfBuy, DealerSelfSell, DealerHedgingBuy, DealerHedgingSell) Values (?,?,?,?,?,?,?,?,?,?)";
+	private String update_amount_into_dailydata = "UPDATE stockdata.dailydata SET FIBuy = ?, FISell = ?, ITBuy = ?, ITSell = ?," +
+								"DealerSelfBuy = ?, DealerSelfSell = ?, DealerHedgingBuy = ?, DealerHedgingSell = ? WHERE (Stock_Number, Date) =";
 	
 	public jdbcMysql() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			//µù¥Udriver
 			con = DriverManager.getConnection(
-					"jdbc:mysql://localhost/stockdata?useUnicode=true&characterEncoding=Big5",
+					"jdbc:mysql://localhost/stockdata?useUnicode=true&characterEncoding=Big5&useSSL=false",
 					"root","Pk123456");
 
 		} catch(ClassNotFoundException e) {
@@ -85,7 +90,7 @@ public class jdbcMysql {
 			rs = stat.executeQuery(select_from_dailydata + "('" + dailyData.getStock_number() + "' ,date('" + dailyData.getDate().toString() + "'))");
 			
 			if(!rs.next()) {
-				pst = con.prepareStatement(insert_into_dailydata);
+				pst = con.prepareStatement(insert_close_into_dailydata);
 				
 				pst.setString(1, dailyData.getStock_number());
 				pst.setDate(2, dailyData.getDate());
@@ -104,8 +109,53 @@ public class jdbcMysql {
 				pst.setDouble(15, dailyData.getPERatio());
 				
 				pst.executeUpdate();
-			} else if(rs.next() && rs.getString("TotalVolume") != null) {
+			} else {
 				
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			Close();
+		}
+	}
+	
+	public void insertDailyAmount(TIIDailyAmount dailyAmount) {
+		try {
+			stat = con.createStatement();
+			rs = stat.executeQuery(select_from_dailydata +
+					"('" + dailyAmount.getStock_number() + "' ,date('" + dailyAmount.getDate().toString() + "'))");
+			
+			if(!rs.next()) {
+				pst = con.prepareStatement(insert_amount_into_dailydata);
+				
+				pst.setString(1, dailyAmount.getStock_number());
+				pst.setDate(2, dailyAmount.getDate());
+				pst.setLong(3, dailyAmount.getFIBuy());
+				pst.setLong(4, dailyAmount.getFISell());
+				pst.setLong(5, dailyAmount.getITBuy());
+				pst.setLong(6, dailyAmount.getITSell());
+				pst.setLong(7, dailyAmount.getDealerSelfBuy());
+				pst.setLong(8, dailyAmount.getDealerSelfSell());
+				pst.setLong(9, dailyAmount.getDealerHedgingBuy());
+				pst.setLong(10, dailyAmount.getDealerHedgingSell());
+				
+				System.out.println("\npst:" + pst.toString());
+				
+				pst.executeUpdate();
+			} else {
+				pst = con.prepareStatement(update_amount_into_dailydata +
+						"('" + dailyAmount.getStock_number() + "' ,date('" + dailyAmount.getDate().toString() + "'))");
+				
+				pst.setLong(1, dailyAmount.getFIBuy());
+				pst.setLong(2, dailyAmount.getFISell());
+				pst.setLong(3, dailyAmount.getITBuy());
+				pst.setLong(4, dailyAmount.getITSell());
+				pst.setLong(5, dailyAmount.getDealerSelfBuy());
+				pst.setLong(6, dailyAmount.getDealerSelfSell());
+				pst.setLong(7, dailyAmount.getDealerHedgingBuy());
+				pst.setLong(8, dailyAmount.getDealerHedgingSell());
+				
+				pst.executeUpdate();
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();

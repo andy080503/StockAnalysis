@@ -7,8 +7,8 @@ enum  Index {
 }
 
 enum  Market {
-	TW, // Listed Company
-    TWO // Over The Counter
+	Listed, // Listed Company ¤W¥«
+    OTC // Over The Counter ¤WÂd
 }
 
 public class Stock {

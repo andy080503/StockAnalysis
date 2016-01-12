@@ -16,6 +16,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class StockListProcesser {
+	private final String Tag = "[StockListProcesser]";
 	private String File_StockTable = "StockTable.html";
 	private String File_T50_100 = "T50_100.html";
 	private String Link_StockTable;
@@ -49,7 +50,7 @@ public class StockListProcesser {
 		downloadLists();
 		parsingStockList(new File(DataPath + File_StockTable));
 		
-	    //addAllToDB();
+	    addAllToDB();
 	}
 	
 	private void downloadLists() {
@@ -96,7 +97,7 @@ public class StockListProcesser {
 				tableList.add(list);
 			}
 			
-			Market market = Market.TW;
+			Market market = Market.Listed;
 			String category = "";
 			for(int i = 0; i < tableList.get(0).size()/2; i++) {
 				for(int j = 0; j < tableList.size(); j ++) {
@@ -106,7 +107,7 @@ public class StockListProcesser {
 					
 					if(count < table.size()) {
 						if(table.get(count).contains("上市") || table.get(count).contains("上櫃")) {
-							market = table.get(count).contains("上市") ? Market.TW : Market.TWO;
+							market = table.get(count).contains("上市") ? Market.Listed : Market.OTC;
 							category = table.get(count+1);
 						} else {
 							String number = table.get(count);
